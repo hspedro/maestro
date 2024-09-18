@@ -87,6 +87,18 @@ func convertGameRoomSpec(scheduler entities.Scheduler, gameRoomName string, game
 			Containers:                    []v1.Container{},
 			Tolerations:                   convertSpecTolerations(gameRoomSpec),
 			Affinity:                      convertSpecAffinity(gameRoomSpec),
+			TopologySpreadConstraints: []v1.TopologySpreadConstraint{
+				{
+					MaxSkew:           1,
+					TopologyKey:       "topology.kubernetes.io/zone",
+					WhenUnsatisfiable: v1.ScheduleAnyway,
+					LabelSelector: &metav1.LabelSelector{
+						MatchLabels: map[string]string{
+							schedulerLabelKey: scheduler.Name,
+						},
+					},
+				},
+			},
 		},
 	}
 	for _, container := range gameRoomSpec.Containers {
